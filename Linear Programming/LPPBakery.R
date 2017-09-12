@@ -1,48 +1,83 @@
 # Using LPSolve to decide what to bake to maximise
 # sales from available resources
-
-# In the cupboard :
-# flour - 5000g     # butter - 2000g
-# sugar - 2000g     # eggs - 30
-# chocolate - 1000g
-
-# Cake :
-# flour - 250g      # butter - 250g
-# sugar - 200g      # eggs - 4
-# chocolate - 0g    # unit value - 300p
-
-# Cookie :
-# flour - 250g      # butter - 150g
-# sugar - 250g      # eggs - 1
-# chocolate - 200g  # unit value - 200p
-
 library(lpSolve)
 
-# Maximise :
-# 300 * Cake + 200 * Cookie
-# Subject To :
-# 250 * Cake + 250 * Cookie <= 2000
-# 250 * Cake + 150 * Cookie <= 2000
-# 200 * Cake + 250 * Cookie <= 2000
-# 4   * Cake + 1   * Cookie <= 30
-# 0   * Cake + 200 * Cookie <= 1000
-# 1   * Cake + 0   * Cookie >= 0
-# 0   * Cake + 1   * Cookie >= 0
+# Items available in the cupboard :
+itemTypes = c("flour","butter","sugar","eggs","chocolate")
+cupboard.flour = 4000
+cupboard.butter = 2500
+cupboard.sugar = 3300
+cupboard.eggs = 40
+cupboard.chocolate = 1500
 
-f.obj <- c(300, 200)
-f.con <- matrix (c(250, 250,
-                   250, 150,
-                   200, 250,
-                   4,   1,
-                   0,   200,
+# Cake recipe :
+cake.flour = 250
+cake.butter = 200
+cake.sugar = 200
+cake.eggs = 4
+cake.chocolate = 0
+cake.value = 3
+
+# Cookie recipe :
+cookie.flour = 250
+cookie.butter = 150
+cookie.sugar = 250
+cookie.eggs = 1
+cookie.chocolate = 150
+cookie.value = 2.4
+
+# Maximise the money made from selling cakes and cookies
+f.obj <- c(cake.value, cookie.value)
+# Subject to the constraint of only using resources in the cupboard 
+f.con <- matrix (c(cake.flour, cookie.flour,
+                   cake.butter, cookie.butter,
+                   cake.sugar, cookie.sugar,
+                   cake.eggs,   cookie.eggs,
+                   cake.chocolate, cookie.chocolate,
                    1,   0,
                    0,   1), nrow=7, byrow=TRUE)
 f.dir <- c("<=","<=","<=","<=","<=",">=",">=")
-f.rhs <- c(5000, 2000, 2000, 30, 1000,0,0)
-
+f.rhs <- c(cupboard.flour, cupboard.butter, cupboard.sugar,
+           cupboard.eggs, cupboard.chocolate,0,0)
 
 # In what proprtion should we bake each of the goods?
 bakeQuantities = floor(lp ("max", f.obj, f.con, f.dir, f.rhs)$solution)
 
 # How much sales can be made with the available resources?
 sum(f.obj * bakeQuantities)
+
+# Plot the constraints and value of each combination
+cakes = 0:15
+flour =   (cupboard.flour-cakes*cake.flour)/cookie.flour
+butter =  (cupboard.butter-cakes*cake.butter)/cookie.butter
+sugar =   (cupboard.sugar-cakes*cake.sugar)/cookie.sugar
+eggs =    (cupboard.eggs-cakes*cake.eggs)/cookie.eggs          
+chocolate = rep(cupboard.chocolate/cookie.chocolate,length(cakes))
+
+cookies = cakes
+
+values = matrix(data = rep(0,length(cakes)^2),nrow=length(cakes))
+
+for (cake in 1:length(cakes)){
+  for (cookie in 1:length(cookies)) {
+    values[cake,cookie] = cakes[cake] * 3 + cookies[cookie] * 2
+  }
+}
+
+
+# Show a heat map of the value of the combination of items
+colsFunc = colorRampPalette(c("blue", "green"))
+cols = colsFunc(300)
+image(cakes,cookies,values,col = cols, main="LPP Bakery")
+# Show the constraint on number of baked goods that can be produced
+lines(cakes,flour,type="l",col="grey",lwd=3)
+lines(cakes,butter,type="l",col="yellow",lwd=3)
+lines(cakes,sugar,type="l",col="grey",lwd=3)
+lines(cakes,eggs,type="l",col="orange",lwd=3)
+lines(cakes,chocolate,type="l",col="brown",lwd=3)
+# Show the most valuable possible combination of goods to bake
+points(bakeQuantities[1],bakeQuantities[2])
+
+legend("topright", legend=itemTypes, lty=1, lwd=3,
+       col=c("grey", "yellow", "grey", "orange", "brown"))
+
