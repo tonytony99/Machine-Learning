@@ -41,7 +41,10 @@ f.rhs <- c(cupboard.flour, cupboard.butter, cupboard.sugar,
            cupboard.eggs, cupboard.chocolate,0,0)
 
 # In what proprtion should we bake each of the goods?
-bakeQuantities = floor(lp ("max", f.obj, f.con, f.dir, f.rhs)$solution)
+# Suppose we can sell fractions of baked goods for a fraction of the price
+# bakeQuantities = lp ("max", f.obj, f.con, f.dir, f.rhs)$solution
+# Suppose we can only sell whole units of baked goods
+bakeQuantities = lp("max", f.obj, f.con, f.dir, f.rhs,all.int = TRUE)$solution
 
 # How much sales can be made with the available resources?
 sum(f.obj * bakeQuantities)
