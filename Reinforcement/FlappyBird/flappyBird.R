@@ -1,7 +1,7 @@
 # Game set up
 
 # length of map
-reps = 5000
+reps = 1000
 # lowest and highest allowed bird height
 bottom = 0; top = 200
 # distance (time) between each pipe
@@ -62,7 +62,7 @@ survivalReward = 1
 # punishment for loosing the game
 lossPunishment = -15000
 
-trainingIterations = 500
+trainingIterations = 250
 experimentHeights = rep(heights,trainingIterations)
 experimentHeights = array(experimentHeights, c(length(heights),trainingIterations))
 experimentScores = rep(0,trainingIterations)
