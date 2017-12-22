@@ -67,7 +67,7 @@ survivalReward = 1
 # punishment for loosing the game
 lossPunishment = -1000
 
-trainingIterations = 2500
+trainingIterations = 1000
 experimentHeights = rep(heights,trainingIterations)
 experimentHeights = array(experimentHeights, c(length(heights),trainingIterations))
 experimentScores = rep(0,trainingIterations)
