@@ -178,7 +178,7 @@ for (j in seq(mA,1,by=-50)) {
 }
 
 # Plot all of the performances against each other
-plot(experimentHeights[,mA],xlim=c(0,experimentScores[mA]), type = "l", ylim=c(bottom,top),ylab="height",main="All Agent Paths")
+plot(experimentHeights[,mA],xlim=c(0,experimentScores[mA]), type = "l", ylim=c(bottom,top),ylab="Height",main="All Agent Paths")
 lines(highPipeBottoms, col = "green")
 lines(lowPipeTops, col = "green")
 for (j in mA:1) {
